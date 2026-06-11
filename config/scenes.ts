@@ -47,6 +47,20 @@ const videoScene = z.object({
 
 export type SelectableVideoScene = z.infer<typeof videoScene>;
 
+// Used when a composition has more recordings than configured video scenes:
+// extra scenes are generated from this template so every take shows up.
+export const defaultVideoScene: SelectableVideoScene = {
+  type: "videoscene",
+  webcamPosition: "previous",
+  startOffset: 0,
+  endOffset: 0,
+  transitionToNextScene: true,
+  newChapter: undefined,
+  stopChapteringAfterThis: undefined,
+  music: "previous",
+  bRolls: [],
+};
+
 const baseScene = z.object({
   music,
   transitionToNextScene: z.boolean().default(true),
@@ -84,26 +98,12 @@ const selectableScenes = z.discriminatedUnion("type", [
   recorderScene,
 ]);
 
-const noRecordingsScene = baseScene.extend({
-  type: z.literal("norecordings"),
-});
-
-const noMoreRecordingsScene = baseScene.extend({
-  type: z.literal("nomorerecordings"),
-});
-
-const noScenes = baseScene.extend({
-  type: z.literal("noscenes"),
-});
-
-const computedScenes = z.discriminatedUnion("type", [
-  noRecordingsScene,
-  noMoreRecordingsScene,
-  noScenes,
-]);
-
 export type SelectableScene = z.infer<typeof selectableScenes>;
-type ComputedScene = z.infer<typeof computedScenes>;
+type ComputedSceneBase = z.infer<typeof baseScene>;
+type ComputedScene =
+  | (ComputedSceneBase & { type: "norecordings" })
+  | (ComputedSceneBase & { type: "nomorerecordings" })
+  | (ComputedSceneBase & { type: "noscenes" });
 
 export const videoConf = z.object({
   theme,

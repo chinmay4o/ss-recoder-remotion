@@ -51,14 +51,12 @@ const balanceCaptions = ({
   const secondHalf = captions.slice(bestCut);
 
   return [
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     ...cutCaptions({
       captions: firstHalf,
       boxWidth,
       maxLines,
       fontSize,
     }),
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     ...cutCaptions({
       captions: secondHalf,
       boxWidth,

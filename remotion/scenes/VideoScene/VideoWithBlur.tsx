@@ -24,10 +24,11 @@ export const VideoWithBlur: React.FC<
     return (
       <AbsoluteFill>
         <Video
+          objectFit="cover"
           style={{
-            objectFit: "cover",
             ...outerStyle,
             position: "absolute",
+            translate: "-5.1px -0.4px",
           }}
           {...props}
         />
@@ -37,7 +38,9 @@ export const VideoWithBlur: React.FC<
 
   return (
     <AbsoluteFill style={outerStyle}>
-      {needsBlur ? <Video style={blurStyle} {...props} muted /> : null}
+      {needsBlur ? (
+        <Video objectFit="cover" style={blurStyle} {...props} muted />
+      ) : null}
       <Video style={innerStyle} {...props} />
     </AbsoluteFill>
   );

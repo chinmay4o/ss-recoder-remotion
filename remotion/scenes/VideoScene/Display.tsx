@@ -86,16 +86,17 @@ export const Display: React.FC<{
             trimBefore={startFrame}
             trimAfter={trimAfter}
             src={scene.cameras.display.src}
+            objectFit="cover"
             style={{
               width: displayLayout.width,
               height: displayLayout.height,
               borderRadius: displayLayout.borderRadius,
-              objectFit: "cover",
+              translate: "0.3px -11px",
+              scale: 1.000729,
             }}
           />
         </ScaleDownIfBRollRequiresIt>
       </div>
-
       <BRollStack
         bRollEnterDirection={scene.layout.bRollEnterDirection}
         bRolls={scene.bRolls}

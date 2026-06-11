@@ -10,11 +10,18 @@ import { ProcessStatus, ProcessingStatus } from "./components/ProcessingStatus";
 import { SelectedFolder } from "./components/SelectedFolder";
 import { UseThisTake } from "./components/UseThisTake";
 import { Button } from "./components/ui/button";
-import {
-  loadFolderFromUrl,
-  loadSelectedFolder,
-  persistSelectedFolder,
-} from "./helpers/get-folders";
+import { loadFolderFromUrl, persistSelectedFolder } from "./helpers/get-folders";
+
+// Each new session defaults to a fresh folder so every video
+// becomes its own composition. The folder is only created on
+// disk once the first take is saved into it.
+const nextFreeVideoFolder = (folders: string[]) => {
+  let i = 1;
+  while (folders.includes(`video-${i}`)) {
+    i++;
+  }
+  return `video-${i}`;
+};
 
 const topBarContainer: React.CSSProperties = {
   display: "flex",
@@ -47,11 +54,15 @@ export const TopBar: React.FC<{
   }, []);
 
   const [preferredSelectedFolder, setSelectedFolder] = useState<string | null>(
-    folderFromUrl ?? loadSelectedFolder(),
+    folderFromUrl,
   );
 
   const selectedFolder = useMemo(() => {
-    return preferredSelectedFolder ?? folders?.[0] ?? null;
+    if (preferredSelectedFolder) {
+      return preferredSelectedFolder;
+    }
+
+    return folders ? nextFreeVideoFolder(folders) : null;
   }, [folders, preferredSelectedFolder]);
 
   const refreshFoldersList = useCallback(async () => {
@@ -64,8 +75,10 @@ export const TopBar: React.FC<{
       return;
     }
 
+    // Also refreshes after a take was saved, so a freshly created
+    // folder loses its "(new)" label in the dropdown.
     refreshFoldersList();
-  }, [refreshFoldersList]);
+  }, [refreshFoldersList, processingStatus]);
 
   useEffect(() => {
     if (!window.remotionServerEnabled) {

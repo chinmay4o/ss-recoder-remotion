@@ -29,6 +29,8 @@ export const container: React.CSSProperties = {
   justifyContent: "center",
   color: "white",
   display: "flex",
+  // Studio-only hover overlay (gated by env.isStudio), never part of a render
+  // eslint-disable-next-line @remotion/non-pure-animation
   transition: "opacity 0.15s",
 };
 

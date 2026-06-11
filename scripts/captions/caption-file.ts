@@ -38,9 +38,20 @@ export const captionFile = async ({
 
   // extracting audio from mp4 and save it as 16khz wav file
   await new Promise<void>((resolve, reject) => {
-    const command = `bunx remotion ffmpeg -hide_banner -i ${fileToTranscribe} -ar 16000 -y ${wavFile}`;
-    const [bin, ...args] = command.split(" ");
-    const child = spawn(bin as string, args, {
+    // Pass arguments as an array so paths containing spaces stay intact
+    const bin = "bunx";
+    const args = [
+      "remotion",
+      "ffmpeg",
+      "-hide_banner",
+      "-i",
+      fileToTranscribe,
+      "-ar",
+      "16000",
+      "-y",
+      wavFile,
+    ];
+    const child = spawn(bin, args, {
       stdio: "ignore",
       signal: signal ?? undefined,
     });

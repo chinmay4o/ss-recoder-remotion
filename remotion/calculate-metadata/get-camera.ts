@@ -6,7 +6,11 @@ import {
   DISPLAY_PREFIX,
   WEBCAM_PREFIX,
 } from "../../config/cameras";
-import { Cameras, SelectableScene } from "../../config/scenes";
+import {
+  Cameras,
+  defaultVideoScene,
+  SelectableScene,
+} from "../../config/scenes";
 
 type CamerasAndScene = {
   scene: SelectableScene;
@@ -101,6 +105,52 @@ const getCameras = (compositionId: string) => {
   return mappedCameras.sort((a, b) => a.timestamp - b.timestamp);
 };
 
+// Make the amount of video scenes match the amount of recordings:
+// extra recordings get a generated scene, video scenes without a
+// recording are dropped (unless there are no recordings at all, in
+// which case one placeholder is kept as feedback).
+const autoFitScenesToRecordings = (
+  scenes: SelectableScene[],
+  recordingCount: number,
+): SelectableScene[] => {
+  if (recordingCount === 0) {
+    return scenes;
+  }
+
+  const videoSceneIndices = scenes
+    .map((scene, i) => (scene.type === "videoscene" ? i : -1))
+    .filter((i) => i !== -1);
+
+  if (videoSceneIndices.length === recordingCount) {
+    return scenes;
+  }
+
+  if (videoSceneIndices.length > recordingCount) {
+    const toDrop = new Set(
+      videoSceneIndices.slice(recordingCount - videoSceneIndices.length),
+    );
+    return scenes.filter((_, i) => !toDrop.has(i));
+  }
+
+  const template =
+    videoSceneIndices.length > 0
+      ? (scenes[
+          videoSceneIndices[videoSceneIndices.length - 1] as number
+        ] as SelectableScene)
+      : defaultVideoScene;
+  const extra = Array.from(
+    { length: recordingCount - videoSceneIndices.length },
+    () => ({ ...template }),
+  );
+
+  const insertAt =
+    videoSceneIndices.length > 0
+      ? (videoSceneIndices[videoSceneIndices.length - 1] as number) + 1
+      : scenes.length;
+
+  return [...scenes.slice(0, insertAt), ...extra, ...scenes.slice(insertAt)];
+};
+
 export const getAllCameras = ({
   compositionId,
   scenes,
@@ -109,9 +159,10 @@ export const getAllCameras = ({
   scenes: SelectableScene[];
 }) => {
   const allCameras = getCameras(compositionId);
+  const fittedScenes = autoFitScenesToRecordings(scenes, allCameras.length);
   let videoIndex = -1;
 
-  const scenesWithCameras = scenes.map((scene): CamerasAndScene => {
+  const scenesWithCameras = fittedScenes.map((scene): CamerasAndScene => {
     if (scene.type !== "videoscene") {
       return { cameras: null, scene };
     }

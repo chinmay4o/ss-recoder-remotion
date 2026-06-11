@@ -29,3 +29,13 @@ lambda.ts
 .env
 cut.ts
 normalize.ts
+
+# Local tooling
+.claude/
+
+# Recordings are user data and too large for git
+public/*/webcam*
+public/*/display*
+public/*/subs*
+public/*/alternative*
+tmp.json

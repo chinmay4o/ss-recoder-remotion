@@ -65,7 +65,10 @@ export const SelectedFolder: React.FC<{
               }}
             >
               {selectedProject ? (
-                <span>public/{selectedProject}</span>
+                <span>
+                  public/{selectedProject}
+                  {folders.includes(selectedProject) ? "" : " (new)"}
+                </span>
               ) : (
                 placeholder
               )}

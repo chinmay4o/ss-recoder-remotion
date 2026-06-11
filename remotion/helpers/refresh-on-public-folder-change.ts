@@ -56,5 +56,5 @@ export const useRefreshOnPublicFolderChange = (compositionId: string) => {
     return () => {
       cancel();
     };
-  }, [compositionId, staticFiles]);
+  }, [compositionId, staticFiles, env.isStudio]);
 };
